@@ -1,0 +1,6 @@
+## tested on python 3.11.6 Windows ##
+
+# Dev dependencies (required for building) ->
+
+ruff>=0.1.9 # Python file formatter and linter
+python-minifier>=2.9.0 # Python file compression
