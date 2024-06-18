@@ -18,6 +18,6 @@ format:
 	ruff format src/ --config ruff.toml
 
 setup:
-	python -m venv venv # you change the python version as you need
+	python3 -m venv venv # you change the python version as you need
 	make venv
 	python -m pip install -r requirements.txt --no-color
