@@ -34,18 +34,33 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     ]  # If it is a verified file and is a python file
     # Below is where the compiling and optimizations happen
 
-    pool = Pool(6) # 6 is the pool size
-    for file in pythonFiles:
-        pool.apply_async(
-            compileAndMinify,
-            (
-                file,
-                outputDirectory,
-            ),
-        )
+    if MULTIPROCESSING == True:
+        pool = Pool(6) # 6 is the pool size
+        for file in pythonFiles:
+            pool.apply_async(
+                compileAndMinify,
+                (
+                    file,
+                    outputDirectory,
+                ),
+            )
 
-    pool.close()
-    pool.join()
+        pool.close()
+        pool.join()
+    else:
+        with open(file, "r+") as fileRW:
+            minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False) # I don't rename vars as that could cause problems when importing between files 
+            fileRW.seek(0)
+            fileRW.writelines(minifiedCode)
+            fileRW.truncate() # This line and the seek one somehow fix some corruption issues
+
+            if "__main__" not in file: # If the __main__.py file is found in the list ignore compilation
+                compiledFile = f"{outputDirectory}{pathLeaf(file)}c"
+                py_compile.compile(file, cfile=compiledFile, optimize=2)
+                os.remove(file)
+                compiledFiles.append(compiledFile) # Outputs compiled python file
+            else:
+                compiledFiles.append(file) # This is only for the __main__.py file
 
     with zipfile.ZipFile(f"{outputDirectory}bundle.py", "w", compression=zipfile.ZIP_DEFLATED, compresslevel=compressionLevel) as bundler:
         for file in compiledFiles:
@@ -54,11 +69,12 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
 
 
 def compileAndMinify(file: str, outputDirectory: str):
-    with open(file, "r+") as fileRW:
-        minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
-        fileRW.seek(0)
-        fileRW.writelines(minifiedCode)
-        fileRW.truncate()  # This line and the seek one somehow fix some corruption issues
+    if MINIFICATION == True:
+        with open(file, "r+") as fileRW:
+            minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
+            fileRW.seek(0)
+            fileRW.writelines(minifiedCode)
+            fileRW.truncate()  # This line and the seek one somehow fix some corruption issues
 
     if "__main__" not in file:  # If the __main__.py file is found in the list ignore compilation (this is to avoid the interpreter finding no entrypoint)
         compiledFile = f"{outputDirectory}{pathLeaf(file)}c"
@@ -87,8 +103,8 @@ if "__main__" in __name__:
     SOURCEDIRECTORY = cfg.get("sourceDirectory")
     OUTPUTDIRECTORY = cfg.get("outputDirectory")
     COMPRESSIONLEVEL = int(cfg.get("compressionLevel"))
-    MULTIPROCESSING = cfg.get("multiprocessing")
-    MINIFICATION = cfg.get("minification")
+    MULTIPROCESSING = bool(cfg.get("multiprocessing"))
+    MINIFICATION = bool(cfg.get("minification"))
     
     start = perf_counter()
     if not os.path.exists(OUTPUTDIRECTORY):
