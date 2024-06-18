@@ -17,6 +17,11 @@ format:
 	ruff check --fix src/ --config ruff.toml
 	ruff format src/ --config ruff.toml
 
+debug:
+	make venv
+	ruff check src/ --config ruff.toml
+	python -m pdb src/__main__.py # https://docs.python.org/3/library/pdb.html
+
 setup:
 	python3 -m venv venv # you change the python version as you need
 	make venv
