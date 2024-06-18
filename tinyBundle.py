@@ -27,8 +27,6 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     shutil.rmtree(outputDirectory)  # Deletes current contents of output directory
     shutil.copytree(srcDirectory, outputDirectory)  # Copies source to output directory
 
-    start = perf_counter()  # Two perf counters to better represent the actual bundle time
-
     pythonFiles = [
         str(entry).replace(os.sep, "/")  # Appends a string of the file path with forward slashes
         for entry in pathlib.Path(outputDirectory).iterdir()  # For all the file entries in the directory
@@ -54,9 +52,6 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
             bundler.write(file, arcname=pathLeaf(file))  # pathleaf is needed to not maintain folder structure
             os.remove(file)  # Clean up
 
-    end = perf_counter()
-    print(f"Bundled in {end - start} seconds")
-
 
 def compileAndMinify(file: str, outputDirectory: str):
     with open(file, "r+") as fileRW:
@@ -73,15 +68,32 @@ def compileAndMinify(file: str, outputDirectory: str):
     else:
         compiledFiles.append(file)  # This is only for the __main__.py file
 
+def unpackCfg(cfgFile: str) -> dict[str, str]:  # This is gonna assume that the the headers of the table are vertical
+    """Turns a config file into a dictionary
+
+    Args:
+        cfgFile (str): Path to the config file
+
+    Returns:
+        Dict[str, str]: The config file as a dictionary with the keys being the first column and the other column being the
+    """
+    with open(cfgFile) as cfgContents:
+        return dict([line.split("=", 1) for line in [line.strip("\n") for line in cfgContents if line != ""]])  # The if is needed due to a bug where the process would fail due to an empty line in the config
+
+
 if "__main__" in __name__:
-    SOURCEDIRECTORY = "src/"
-    OUTPUTDIRECTORY = "out/"
-    COMPRESSIONLEVEL = 9
+    
+    cfg = unpackCfg("tinyBundle.cfg")
+    SOURCEDIRECTORY = cfg.get("sourceDirectory")
+    OUTPUTDIRECTORY = cfg.get("outputDirectory")
+    COMPRESSIONLEVEL = int(cfg.get("compressionLevel"))
+    MULTIPROCESSING = cfg.get("multiprocessing")
+    MINIFICATION = cfg.get("minification")
     
     start = perf_counter()
     if not os.path.exists(OUTPUTDIRECTORY):
         os.makedirs(OUTPUTDIRECTORY)
-        bundle(SOURCEDIRECTORY, OUTPUTDIRECTORY, COMPRESSIONLEVEL)
+    bundle(SOURCEDIRECTORY, OUTPUTDIRECTORY, COMPRESSIONLEVEL)
     end = perf_counter()
-    print(f"Process completed in {end - start} seconds")
 
+    print(f"Bundled in {end - start} seconds")
