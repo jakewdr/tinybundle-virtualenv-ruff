@@ -10,7 +10,12 @@ build:
 	python tinyBundle.py -OO
 
 venv:
-	venv/Scripts/activate
+	ifeq ($(OS),Windows_NT) # Needed to be platform agnostic
+		venv/Scripts/activate
+	endif
+	ifeq ($(UNAME_S),Linux)
+		source venv/Scripts/activate
+	endif
 
 format:
 	make venv
