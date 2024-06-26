@@ -96,7 +96,7 @@ def unpackCfg(cfgFile: str) -> dict[str, str]:  # This is gonna assume that the 
 
 if "__main__" in __name__:
     
-    cfg = unpackCfg("tinyBundle.cfg")
+    cfg: dict[str, str] = unpackCfg("tinyBundle.cfg")
     SOURCEDIRECTORY = cfg.get("sourceDirectory")
     OUTPUTDIRECTORY = cfg.get("outputDirectory")
     COMPRESSIONLEVEL = int(cfg.get("compressionLevel"))
