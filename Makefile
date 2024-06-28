@@ -27,7 +27,10 @@ debug:
 	ruff check src/ --config ruff.toml
 	python -m pdb src/__main__.py
 
-setup:
+setup: requirements.txt
 	python -m venv venv
 	make venv
+	make pip
+
+pip: requirements.txt
 	python -m pip install -r requirements.txt --no-color
