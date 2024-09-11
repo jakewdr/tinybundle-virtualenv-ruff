@@ -50,7 +50,7 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
             if MINIFICATION == "True" or BYTECODECOMPILATION == "True":
                 compileAndMinify(file, outputDirectory)
             else:
-                compiledFiles.append(file, outputDirectory)
+                compiledFiles.append(f"{outputDirectory}{pathLeaf(file)}")
     with zipfile.ZipFile(f"{outputDirectory}bundle.py", "w", compression=zipfile.ZIP_DEFLATED, compresslevel=compressionLevel) as bundler:
         for file in compiledFiles:
             bundler.write(file, arcname=pathLeaf(file))  # pathleaf is needed to not maintain folder structure
@@ -97,12 +97,12 @@ def unpackCfg(cfgFile: str) -> dict[str, str]:  # This is gonna assume that the 
 if "__main__" in __name__:
     
     cfg: dict[str, str] = unpackCfg("tinyBundle.cfg")
-    SOURCEDIRECTORY = cfg.get("sourceDirectory")
-    OUTPUTDIRECTORY = cfg.get("outputDirectory")
-    COMPRESSIONLEVEL = int(cfg.get("compressionLevel"))
+    SOURCEDIRECTORY = str(cfg.get("sourceDirectory"))
+    OUTPUTDIRECTORY =str(cfg.get("outputDirectory"))
+    COMPRESSIONLEVEL = int(str(cfg.get("compressionLevel")))
     
     MULTIPROCESSING = cfg.get("multiprocessing")
-    MULTIPROCESSINGPOOLS = int(cfg.get("multiprocessingPools"))
+    MULTIPROCESSINGPOOLS = int(str(cfg.get("multiprocessingPools")))
     
     MINIFICATION = cfg.get("minification")
     BYTECODECOMPILATION = cfg.get("bytecodeCompilation")
