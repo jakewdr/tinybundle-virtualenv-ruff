@@ -8,7 +8,7 @@ from time import perf_counter
 
 import python_minifier
 
-compiledFiles = []
+compiledFiles: list[str] = []
 
 
 def pathLeaf(path) -> str:
@@ -97,15 +97,15 @@ def unpackCfg(cfgFile: str) -> dict[str, str]:  # This is gonna assume that the 
 if "__main__" in __name__:
     
     cfg: dict[str, str] = unpackCfg("tinyBundle.cfg")
-    SOURCEDIRECTORY = str(cfg.get("sourceDirectory"))
-    OUTPUTDIRECTORY =str(cfg.get("outputDirectory"))
-    COMPRESSIONLEVEL = int(str(cfg.get("compressionLevel")))
+    SOURCEDIRECTORY: str = str(cfg.get("sourceDirectory"))
+    OUTPUTDIRECTORY: str =str(cfg.get("outputDirectory"))
+    COMPRESSIONLEVEL: str = int(str(cfg.get("compressionLevel")))
     
-    MULTIPROCESSING = cfg.get("multiprocessing")
-    MULTIPROCESSINGPOOLS = int(str(cfg.get("multiprocessingPools")))
+    MULTIPROCESSING: str = str(cfg.get("multiprocessing"))
+    MULTIPROCESSINGPOOLS: int = int(str(cfg.get("multiprocessingPools")))
     
-    MINIFICATION = cfg.get("minification")
-    BYTECODECOMPILATION = cfg.get("bytecodeCompilation")
+    MINIFICATION: str = str(cfg.get("minification"))
+    BYTECODECOMPILATION: str = str(cfg.get("bytecodeCompilation"))
     
     start = perf_counter()
     if not os.path.exists(OUTPUTDIRECTORY):
