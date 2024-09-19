@@ -21,22 +21,20 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     shutil.rmtree(outputDirectory)  # Deletes current contents of output directory
     shutil.copytree(srcDirectory, outputDirectory)  # Copies source to output directory
 
-    pythonFiles = [
+    pythonFiles = {
         str(entry).replace(os.sep, "/")  # Appends a string of the file path with forward slashes
         for entry in pathlib.Path(outputDirectory).iterdir()  # For all the file entries in the directory
         if ".py" in str(pathlib.Path(entry))
-    ]  # If it is a verified file and is a python file
-    # Below is where the compiling and optimizations happen
-    pythonFileSet = set(pythonFiles)
+    }  # If it is a verified file and is a python file
     if MINIFICATION == "True":
-        for file in pythonFileSet:
+        for file in pythonFiles:
             with open(file, "r+") as fileRW:
                 minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
                 fileRW.seek(0)
                 fileRW.writelines(minifiedCode)
                 fileRW.truncate()
     with zipfile.ZipFile(f"{outputDirectory}bundle.py", "w", compression=zipfile.ZIP_DEFLATED, compresslevel=compressionLevel) as bundler:
-        for file in pythonFileSet:
+        for file in pythonFiles:
             bundler.write(file, arcname=pathLeaf(file))  # pathleaf is needed to not maintain folder structure
             os.remove(file)  # Clean up
 
