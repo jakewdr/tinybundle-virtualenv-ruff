@@ -1,15 +1,9 @@
 import os
 import pathlib
-import py_compile
 import shutil
 import zipfile
-from multiprocessing.pool import ThreadPool as Pool
 from time import perf_counter
-
 import python_minifier
-
-compiledFiles: list[str] = []
-
 
 def pathLeaf(path) -> str:
     return str(os.path.split(path)[1])
@@ -33,53 +27,18 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
         if ".py" in str(pathlib.Path(entry))
     ]  # If it is a verified file and is a python file
     # Below is where the compiling and optimizations happen
-    if MULTIPROCESSING == "True" and (MINIFICATION == "True" or BYTECODECOMPILATION == "True"):
-        pool = Pool(MULTIPROCESSINGPOOLS) # 6 is the pool size
-        for file in pythonFiles:
-            pool.apply_async(
-                compileAndMinify,
-                (
-                    file,
-                    outputDirectory,
-                ),
-            )
-        pool.close()
-        pool.join()
-    elif MULTIPROCESSING == "False":
-        for file in pythonFiles:
-            if MINIFICATION == "True" or BYTECODECOMPILATION == "True":
-                compileAndMinify(file, outputDirectory)
-            else:
-                compiledFiles.append(f"{outputDirectory}{pathLeaf(file)}")
+    pythonFileSet = set(pythonFiles)
+    if MINIFICATION == "True":
+        for file in pythonFileSet:
+            with open(file, "r+") as fileRW:
+                minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
+                fileRW.seek(0)
+                fileRW.writelines(minifiedCode)
+                fileRW.truncate()
     with zipfile.ZipFile(f"{outputDirectory}bundle.py", "w", compression=zipfile.ZIP_DEFLATED, compresslevel=compressionLevel) as bundler:
-        for file in compiledFiles:
+        for file in pythonFileSet:
             bundler.write(file, arcname=pathLeaf(file))  # pathleaf is needed to not maintain folder structure
             os.remove(file)  # Clean up
-
-
-def compileAndMinify(file: str, outputDirectory: str) -> None:
-    """Compiles and minifies python files
-
-    Args:
-        file (str): File name/path
-        outputDirectory (str): The path for the output file to be located
-    """
-    with open(file, "r+") as fileRW:
-        if MINIFICATION == "True":
-            minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
-            fileRW.seek(0)
-            fileRW.writelines(minifiedCode)
-            fileRW.truncate()  # This line and the seek one somehow fix some corruption issues
-        if BYTECODECOMPILATION == "True":
-            if "__main__" not in file:  # If the __main__.py file is found in the list ignore compilation (this is to avoid the interpreter finding no entrypoint)
-                compiledFile = f"{outputDirectory}{pathLeaf(file)}c"
-                py_compile.compile(file, cfile=compiledFile, optimize=2)
-                os.remove(file)
-                compiledFiles.append(compiledFile)  # Outputs compiled python file
-            else:
-                compiledFiles.append(file)  # This is only for the __main__.py file
-        else:
-            compiledFiles.append(file)
 
 def unpackCfg(cfgFile: str) -> dict[str, str]:  # This is gonna assume that the the headers of the table are vertical
     """Turns a config file into a dictionary
@@ -100,13 +59,7 @@ if "__main__" in __name__:
     SOURCEDIRECTORY: str = str(cfg.get("sourceDirectory"))
     OUTPUTDIRECTORY: str =str(cfg.get("outputDirectory"))
     COMPRESSIONLEVEL: str = int(str(cfg.get("compressionLevel")))
-    
-    MULTIPROCESSING: str = str(cfg.get("multiprocessing"))
-    MULTIPROCESSINGPOOLS: int = int(str(cfg.get("multiprocessingPools")))
-    
     MINIFICATION: str = str(cfg.get("minification"))
-    BYTECODECOMPILATION: str = str(cfg.get("bytecodeCompilation"))
-    
     start = perf_counter()
     if not os.path.exists(OUTPUTDIRECTORY):
         os.makedirs(OUTPUTDIRECTORY)

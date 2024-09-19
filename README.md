@@ -17,7 +17,3 @@ To run the project you can run:
 If you only want to build the project use:
 
     make build
-
-# Known issues
-
-Bytecode compilation doesn't work right now, working on a fix!
