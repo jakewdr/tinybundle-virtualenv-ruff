@@ -8,6 +8,8 @@ Then all you need to do is navigate to the project directory and run:
 
     make setup
 
+Note this project has been tested on python 3.11.x
+
 # Running the project
 
 To run the project you can run:
