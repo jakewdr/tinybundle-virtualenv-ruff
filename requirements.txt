@@ -1,4 +1,4 @@
 # Dev dependencies (required for building) ->
 
-ruff>=0.5 # Python file formatter and linter
+ruff>=0.6 # Python file formatter and linter
 python-minifier>=2.9.0 # Python file compression
