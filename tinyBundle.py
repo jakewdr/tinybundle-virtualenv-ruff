@@ -21,11 +21,11 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     shutil.rmtree(outputDirectory)  # Deletes current contents of output directory
     shutil.copytree(srcDirectory, outputDirectory)  # Copies source to output directory
 
-    pythonFiles = tuple([
+    pythonFiles = [
         str(entry).replace(os.sep, "/")  # Appends a string of the file path with forward slashes
         for entry in pathlib.Path(outputDirectory).iterdir()  # For all the file entries in the directory
         if ".py" in str(pathlib.Path(entry))
-    ])  # If it is a verified file and is a python file
+    ]  # If it is a verified file and is a python file
     if MINIFICATION == "True":
         for file in pythonFiles:
             with open(file, "r+") as fileRW:
