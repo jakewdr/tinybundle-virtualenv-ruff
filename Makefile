@@ -1,13 +1,14 @@
 .ONESHELL:
 
+PYTHON=${VENV_NAME}/bin/python
+
 run:
 	make build
-	python out/bundle.py -OO
+	${PYTHON} out/bundle.py -OO
 
 build:
-	make venv
 	make format
-	python tinyBundle.py -OO
+	${PYTHON} tinyBundle.py -OO
 
 venv:
 	ifeq ($(OS),Windows_NT)
@@ -18,20 +19,12 @@ venv:
 	endif
 
 format:
-	make venv
 	ruff check --fix src/ --config ruff.toml
 	ruff format src/ --config ruff.toml
 
-debug:
-	make venv
-	ruff check src/ --config ruff.toml
-	python -m pdb src/__main__.py
-
 setup: requirements.txt
-	python -m venv venv
-	make venv
-	make pip
-	python --version
+	${PYTHON} -m venv venv
+	make venv && make pip && ${PYTHON} --version
 
 pip: requirements.txt
-	python -m pip install -r requirements.txt --no-color
+	${PYTHON} -m pip install -r requirements.txt --no-color
