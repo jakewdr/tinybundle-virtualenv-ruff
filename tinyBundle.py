@@ -29,7 +29,10 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     if MINIFICATION == "True":
         for file in pythonFiles:
             with open(file, "r+") as fileRW:
-                minifiedCode = python_minifier.minify(fileRW.read(), rename_locals=False, rename_globals=False)  # I don't rename vars as that could cause problems when importing between files
+                minifiedCode = python_minifier.minify(fileRW.read(), 
+                    rename_locals=False, 
+                    rename_globals=False
+                ) # I don't rename vars as that could cause problems when importing between files
                 fileRW.seek(0)
                 fileRW.writelines(minifiedCode)
                 fileRW.truncate()
@@ -58,9 +61,9 @@ if "__main__" in __name__:
     OUTPUTDIRECTORY: str =str(cfg.get("outputDirectory"))
     COMPRESSIONLEVEL: str = int(str(cfg.get("compressionLevel")))
     MINIFICATION: str = str(cfg.get("minification"))
-    start = perf_counter()
     if not os.path.exists(OUTPUTDIRECTORY):
         os.makedirs(OUTPUTDIRECTORY)
+    start = perf_counter()
     bundle(SOURCEDIRECTORY, OUTPUTDIRECTORY, COMPRESSIONLEVEL)
     end = perf_counter()
 
