@@ -1,0 +1,23 @@
+version: '3'
+
+tasks:
+
+    run:
+        cmds:
+            - task build
+            - python out/bundle.py -OO
+
+    build:
+        cmds:
+            - task format
+            - python tinyBundle.py -OO
+
+    format:
+        cmds:
+            - ruff check --fix src/ --config ruff.toml
+            - ruff format src/ --config ruff.toml
+
+    setup:
+        cmds:
+            - python -m pip install -r requirements.txt --no-color
+            - python --version
