@@ -4,9 +4,7 @@
 
 2) Make sure the [Python](https://www.python.org/downloads/) version you are going to use for the virtualenv is installed on the system and added to path (this project has been tested on python [3.11.x](https://www.python.org/downloads/release/python-3119/))
 
-3) Install virtualenv using:
-
-    python -m pip install --user virtualenv
+3) Install [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
 
 Firstly you need to create the virtual environment:
 
