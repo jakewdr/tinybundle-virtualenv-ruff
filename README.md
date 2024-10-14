@@ -2,7 +2,7 @@
 
 1) Install [Taskfile](https://taskfile.dev/installation/) for your operating system
 
-2) Make sure the [Python](https://www.python.org/downloads/) version you are going to use for the virtualenv is installed on the system and added to path
+2) Make sure the [Python](https://www.python.org/downloads/) version you are going to use for the virtualenv is installed on the system and added to path (this project has been tested on python [3.11.x](https://www.python.org/downloads/release/python-3119/))
 
 3) Install virtualenv using:
 
@@ -20,8 +20,6 @@ Next you need to activate it (first is for windows second is for unix based):
 Then all you need to do is navigate to the project directory and run:
 
     task setup
-
-Note this project has been tested on python 3.11.x
 
 # Running the project
 
