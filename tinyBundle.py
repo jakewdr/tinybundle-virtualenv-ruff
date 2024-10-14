@@ -6,7 +6,7 @@ from time import perf_counter
 import python_minifier
 
 def pathLeaf(path) -> str:
-    return str(os.path.split(path)[1])
+    return str(os.path.split(path)[1]).strip()
 
 
 def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> None:
@@ -21,7 +21,7 @@ def bundle(srcDirectory: str, outputDirectory: str, compressionLevel: int) -> No
     shutil.rmtree(outputDirectory)  # Deletes current contents of output directory
     shutil.copytree(srcDirectory, outputDirectory)  # Copies source to output directory
 
-    pythonFiles = [
+    pythonFiles: list[str] = [
         str(entry).replace(os.sep, "/")  # Appends a string of the file path with forward slashes
         for entry in pathlib.Path(outputDirectory).iterdir()  # For all the file entries in the directory
         if ".py" in str(pathlib.Path(entry))
@@ -58,7 +58,7 @@ if "__main__" in __name__:
     
     cfg: dict[str, str] = unpackCfg("tinyBundle.cfg")
     SOURCEDIRECTORY: str = str(cfg.get("sourceDirectory"))
-    OUTPUTDIRECTORY: str =str(cfg.get("outputDirectory"))
+    OUTPUTDIRECTORY: str = str(cfg.get("outputDirectory"))
     COMPRESSIONLEVEL: str = int(str(cfg.get("compressionLevel")))
     MINIFICATION: str = str(cfg.get("minification"))
     if not os.path.exists(OUTPUTDIRECTORY):
